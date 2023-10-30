@@ -3,7 +3,6 @@ esphome:
   friendly_name: chinese-night-heater
   includes:
     - heater.h
-    - heater_switch.h
 
 esp8266:
   board: esp01_1m
@@ -13,6 +12,9 @@ logger:
 
 # Enable Home Assistant API
 api:
+
+ota:
+
 
 wifi:
   ssid: !secret wifi_ssid
@@ -26,6 +28,7 @@ wifi:
 captive_portal:
 
 uart:
+  tx_pin: 4
   rx_pin: 4
   baud_rate: 25000
   id: heater_serial
@@ -37,38 +40,47 @@ sensor:
     unit_of_measurement: ""
     lambda: "return {};"
     accuracy_decimals: 0
+    
   - platform: template
     id: mode
     name: "Mode"
     lambda: "return {};"
     accuracy_decimals: 0
+
   - platform: template
     id: pump_frequency
     name: "Pump Frequency"
     unit_of_measurement: "PPS"
     lambda: "return {};"
+
   - platform: template
     id: fan_speed
     name: "Fan Speed"
     unit_of_measurement: "RPM"
     lambda: "return {};"
     accuracy_decimals: 0
+
   - platform: template
     id: chamber_temperature
     name: "Chamber Temperature"
     unit_of_measurement: "°C"
     lambda: "return {};"
     accuracy_decimals: 0
+
   - platform: template
     id: state_int
     name: "State (Int)"
     lambda: "return {};"
+    internal: true
     accuracy_decimals: 0
+
   - platform: template
     id: error_int
     name: "Error (Int)"
     lambda: "return {};"
     accuracy_decimals: 0
+    internal: true
+
   - platform: template
     id: duty_cycle
     name: "Duty Cycle"
@@ -147,6 +159,34 @@ custom_component:
 button:
   - platform: restart
     name: Restart
+
+  - platform: template
+    name: "Heater On"
+    id: heater_on
+    icon: "mdi:fire"
+    on_press:
+      then:
+        - switch.turn_on: heater_switch
+
+  - platform: template
+    name: "Heater Off"
+    id: heater_off
+    icon: "mdi:fire-off"
+    on_press:
+      then:
+        - switch.turn_off: heater_switch
+
+switch:
+  - platform: custom
+    switches:
+      - name: "Heater"
+        icon: "mdi:fire"
+        id: heater_switch
+        internal: true
+    lambda: |- 
+      auto my_switch = new HeaterSwitch(id(heater_serial));
+      App.register_component(my_switch);
+      return {my_switch};
 
 web_server:
   port: 80
