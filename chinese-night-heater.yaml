@@ -44,7 +44,7 @@ sensor:
   - platform: template
     id: pump_frequency
     name: "Pump Frequency"
-    unit_of_measurement: "PPS"
+    unit_of_measurement: "Hz"
     lambda: "return {};"
   - platform: template
     id: fan_speed
