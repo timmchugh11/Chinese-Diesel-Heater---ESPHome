@@ -1,0 +1,152 @@
+esphome:
+  name: chinese-night-heater
+  friendly_name: chinese-night-heater
+  includes:
+    - heater.h
+    - heater_switch.h
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Chinese-Night-Heater"
+    password: !secret wifi_password
+
+captive_portal:
+
+uart:
+  rx_pin: 4
+  baud_rate: 25000
+  id: heater_serial
+
+sensor:
+  - platform: template
+    id: set_temperature
+    name: "Set Duty"
+    unit_of_measurement: ""
+    lambda: "return {};"
+    accuracy_decimals: 0
+  - platform: template
+    id: mode
+    name: "Mode"
+    lambda: "return {};"
+    accuracy_decimals: 0
+  - platform: template
+    id: pump_frequency
+    name: "Pump Frequency"
+    unit_of_measurement: "PPS"
+    lambda: "return {};"
+  - platform: template
+    id: fan_speed
+    name: "Fan Speed"
+    unit_of_measurement: "RPM"
+    lambda: "return {};"
+    accuracy_decimals: 0
+  - platform: template
+    id: chamber_temperature
+    name: "Chamber Temperature"
+    unit_of_measurement: "°C"
+    lambda: "return {};"
+    accuracy_decimals: 0
+  - platform: template
+    id: state_int
+    name: "State (Int)"
+    lambda: "return {};"
+    accuracy_decimals: 0
+  - platform: template
+    id: error_int
+    name: "Error (Int)"
+    lambda: "return {};"
+    accuracy_decimals: 0
+  - platform: template
+    id: duty_cycle
+    name: "Duty Cycle"
+    unit_of_measurement: "%"
+    lambda: "return {};"
+    accuracy_decimals: 0
+  
+text_sensor:
+  - platform: template
+    id: state
+    name: "State"
+    update_interval: 5s
+    lambda: |-
+      if (id(error_int).state != 0 && id(error_int).state != 1) {
+        if (id(error_int).state == 0) {
+          return optional<std::string>("No Error");
+        } else if (id(error_int).state == 1) {
+          return optional<std::string>("No Error, but started");
+        } else if (id(error_int).state == 2) {
+          return optional<std::string>("Voltage too low");
+        } else if (id(error_int).state == 3) {
+          return optional<std::string>("Voltage too high");
+        } else if (id(error_int).state == 4) {
+          return optional<std::string>("Ignition plug failure");
+        } else if (id(error_int).state == 5) {
+          return optional<std::string>("Pump Failure – over current");
+        } else if (id(error_int).state == 6) {
+          return optional<std::string>("Too hot");
+        } else if (id(error_int).state == 7) {
+          return optional<std::string>("Motor Failure");
+        } else if (id(error_int).state == 8) {
+          return optional<std::string>("Serial connection lost");
+        } else if (id(error_int).state == 9) {
+          return optional<std::string>("Gone-Out");
+        } else if (id(error_int).state == 10) {
+          return optional<std::string>("Temperature sensor failure");
+        } else if (id(error_int).state == 11) {
+          return optional<std::string>("Ignition fail");
+        } else if (id(error_int).state == 12) {
+          return optional<std::string>("Failed 1st ignite");
+        } else if (id(error_int).state == 13) {
+          return optional<std::string>("Excess fuel usage");
+        } else {
+          return optional<std::string>("Unknown");
+        };
+      } else {
+        if (id(state_int).state == 0) {
+          return optional<std::string>("Off");
+        } else if (id(state_int).state == 1) {
+          return optional<std::string>("Starting");
+        } else if (id(state_int).state == 2) {
+          return optional<std::string>("Pre-Heat");
+        } else if (id(state_int).state == 3) {
+          return optional<std::string>("Failed Start - Retrying");
+        } else if (id(state_int).state == 4) {
+          return optional<std::string>("Ignition - Now heating up");
+        } else if (id(state_int).state == 5) {
+          return optional<std::string>("Running Normally");
+        } else if (id(state_int).state == 6) {
+          return optional<std::string>("Stop Command Received");
+        } else if (id(state_int).state == 7) {
+          return optional<std::string>("Stopping");
+        } else if (id(state_int).state == 8) {
+          return optional<std::string>("Cooldown");
+        } else {
+          return optional<std::string>("Unknown");
+        }
+      };
+
+custom_component:
+- lambda: |-
+    auto my_custom = new HeaterUart(id(heater_serial),id(set_temperature),id(state_int),id(error_int),id(mode),id(pump_frequency),id(fan_speed),id(chamber_temperature),id(duty_cycle));
+    App.register_component(my_custom);
+    return {my_custom};
+
+button:
+  - platform: restart
+    name: Restart
+
+web_server:
+  port: 80
