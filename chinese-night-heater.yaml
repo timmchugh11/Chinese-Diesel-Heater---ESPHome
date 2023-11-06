@@ -160,21 +160,22 @@ button:
   - platform: restart
     name: Restart
 
-  - platform: template
-    name: "Heater On"
-    id: heater_on
-    icon: "mdi:fire"
-    on_press:
-      then:
-        - switch.turn_on: heater_switch
+#Buttons have no functinality, WIP
+#  - platform: template
+#    name: "Heater On"
+#    id: heater_on
+#    icon: "mdi:fire"
+#   on_press:
+#      then:
+#        - switch.turn_on: heater_switch
 
-  - platform: template
-    name: "Heater Off"
-    id: heater_off
-    icon: "mdi:fire-off"
-    on_press:
-      then:
-        - switch.turn_off: heater_switch
+#  - platform: template
+#    name: "Heater Off"
+#    id: heater_off
+#    icon: "mdi:fire-off"
+#    on_press:
+#      then:
+#        - switch.turn_off: heater_switch
 
 switch:
   - platform: custom
