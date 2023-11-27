@@ -44,7 +44,7 @@ class HeaterUart : public PollingComponent, public UARTDevice {  public:
                 data[count] = inByte;
                 count++;
                 if (count == 48) {
-                    if (data[45] == 0 && data[44] == 100) {
+                    if (data[45] == 0 && data[44] == 100 && data[42] == 0 && data[25] == 0x16) {
                         ESP_LOGI("heater_temp_module", "Got all data, Parsed Data: Set Temp: %d, Heater State: %d, Heater Error: %d, On/Off: %d, Pump Freq: %d, Fan Speed: %d, Chamber Temp: %d", data[SET_TEMP_INDEX], data[HEATER_STATE_INDEX], data[HEATER_ERROR_INDEX], data[ON_OFF_INDEX], data[PUMP_FREQ_INDEX], data[FAN_SPEED_HIGH_INDEX] * 256 + data[FAN_SPEED_LOW_INDEX], data[CHAMBER_TEMP_HIGH_INDEX] * 256 + data[CHAMBER_TEMP_LOW_INDEX]);
                         dataValid = true;
                     } else {
@@ -103,7 +103,7 @@ class HeaterUart : public PollingComponent, public UARTDevice {  public:
                 ESP_LOGE("heater_temp_module", "Heater error out of range: %d", heaterError);
             }
             on_off->publish_state(onOrOff);
-            if (((pumpFreq * 0.1) > 1.2 && (pumpFreq * 0.1) < 5.0) || (pumpFreq == 0)){
+            if (((pumpFreq * 0.1) > 1.2 && (pumpFreq * 0.1) < 6) || (pumpFreq == 0)){
                 pump_freq->publish_state(pumpFreq * 0.1);
             } else {
                 ESP_LOGE("heater_temp_module", "Pump frequency out of range: %d", pumpFreq);
@@ -113,7 +113,7 @@ class HeaterUart : public PollingComponent, public UARTDevice {  public:
             } else {
                 ESP_LOGE("heater_temp_module", "Fan speed out of range: %d", fanSpeed);
             }
-            if (chamberTemp > 0 && chamberTemp < 300){
+            if (chamberTemp > 0 && chamberTemp < 230){
                 chamber_temp->publish_state(chamberTemp);
             } else {
                 ESP_LOGE("heater_temp_module", "Chamber temperature out of range: %d", chamberTemp);
