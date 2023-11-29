@@ -177,17 +177,17 @@ button:
 #      then:
 #        - switch.turn_off: heater_switch
 
-switch:
-  - platform: custom
-    switches:
-      - name: "Heater"
-        icon: "mdi:fire"
-        id: heater_switch
-        internal: true
-    lambda: |- 
-      auto my_switch = new HeaterSwitch(id(heater_serial));
-      App.register_component(my_switch);
-      return {my_switch};
+#switch:
+#  - platform: custom
+#    switches:
+#      - name: "Heater"
+#        icon: "mdi:fire"
+#        id: heater_switch
+#        internal: true
+#    lambda: |- 
+#      auto my_switch = new HeaterSwitch(id(heater_serial));
+#      App.register_component(my_switch);
+#      return {my_switch};
 
 web_server:
   port: 80
