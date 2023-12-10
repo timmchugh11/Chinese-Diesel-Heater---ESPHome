@@ -11,7 +11,7 @@ I hope to add control.
 
 # Control Solution
 
-I have struggled to get working commands sent over serial, so I connected 3 transistors to the switches on the controllers switchs, 'Power', 'Up' and 'Down' through 1k resistors to the ESP's GPIO so I can turn the heater on and off and control the duty through ESPHome.
+I have struggled to get working commands sent over serial, so I connected 3 transistors to the switches on the controller, 'Power', 'Up' and 'Down' through 1k resistors to the ESP's GPIO so I can turn the heater on and off and control the duty through ESPHome. The power switch needs to be on/'Pressed' for 3 seconds tot urn the heater off.
 
 ![image](https://github.com/timmchugh11/Chinese-Diesel-Heater---ESPHome/assets/51882579/dbc770fe-6271-419e-b8ee-10471d517837)
 ```
