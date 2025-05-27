@@ -46,12 +46,6 @@ sensor:
     accuracy_decimals: 0
 
   - platform: template
-    id: mode
-    name: "Mode"
-    lambda: "return {};"
-    accuracy_decimals: 0
-
-  - platform: template
     id: pump_frequency
     name: "Pump Frequency"
     unit_of_measurement: "Hz"
