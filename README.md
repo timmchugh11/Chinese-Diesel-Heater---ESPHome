@@ -11,9 +11,6 @@ I hope to add control.
 [Check out this readme from PabloVitasso for more detailed infomation about wiring](https://github.com/PabloVitasso/esphome-chinbasto/blob/main/README.md)
 
 
-[Check out this readme from PabloVitasso for more detailed infomation about wiring](https://github.com/PabloVitasso/esphome-chinbasto/blob/main/README.md)
-
-
 # Instructions
 
 Simply wire up the esp to the controller, I try to keep the blue cable connection as short as possible for best results, then add the following to the yaml.
