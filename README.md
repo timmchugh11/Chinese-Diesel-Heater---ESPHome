@@ -16,6 +16,11 @@ I hope to add control.
 Simply wire up the esp to the controller, I try to keep the blue cable connection as short as possible for best results, then add the following to the yaml.
 
 ```
+uart:
+  rx_pin: 33 # Change to blue wire pin
+  baud_rate: 25000
+  id: heater_serial
+
 external_components:
   - source:
       type: git
