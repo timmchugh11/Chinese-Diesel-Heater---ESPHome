@@ -8,6 +8,12 @@ I hope to add control.
 
 [Documentation used, credit Ray Jones for his work with these heaters](https://gitlab.com/mrjones.id.au/bluetoothheater/-/blob/master/Documentation/V9%20-%20Hacking%20the%20Chinese%20Diesel%20Heater%20Communications%20Protocol.pdf?ref_type=heads)
 
+[Check out this readme from PabloVitasso for more detailed infomation about wiring](https://github.com/PabloVitasso/esphome-chinbasto/blob/main/README.md)
+
+
+[Check out this readme from PabloVitasso for more detailed infomation about wiring](https://github.com/PabloVitasso/esphome-chinbasto/blob/main/README.md)
+
+
 # Instructions
 
 Simply wire up the esp to the controller, I try to keep the blue cable connection as short as possible for best results, then add the following to the yaml.
