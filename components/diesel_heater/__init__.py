@@ -18,6 +18,8 @@ CONF_FAN_SPEED = "fan_speed"
 CONF_CHAMBER_TEMPERATURE = "chamber_temperature"
 CONF_DUTY_CYCLE = "duty_cycle"
 CONF_ON_OFF = "on_off"
+CONF_INITIAL_FRAME = "initial_frame"
+CONF_SEND_INTERVAL = "send_interval"
 
 # Schema definition
 CONFIG_SCHEMA = cv.Schema({
@@ -31,6 +33,8 @@ CONFIG_SCHEMA = cv.Schema({
     cv.Required(CONF_FAN_SPEED): cv.use_id(sensor.Sensor),
     cv.Required(CONF_CHAMBER_TEMPERATURE): cv.use_id(sensor.Sensor),
     cv.Required(CONF_DUTY_CYCLE): cv.use_id(sensor.Sensor),
+    cv.Optional(CONF_INITIAL_FRAME): cv.All(cv.ensure_list(cv.hex_uint8_t), cv.Length(min=24, max=24)),
+    cv.Optional(CONF_SEND_INTERVAL, default="150ms"): cv.positive_time_period_milliseconds,
 }).extend(cv.polling_component_schema("5s"))  # match PollingComponent(5000)
 
 # Code generation
@@ -58,3 +62,8 @@ async def to_code(config):
 
     await cg.register_component(var, config)
     await uart.register_uart_device(var, config)  # ✅ pass the whole config
+
+    if CONF_INITIAL_FRAME in config:
+        cg.add(var.set_initial_frame(config[CONF_INITIAL_FRAME]))
+    if CONF_SEND_INTERVAL in config:
+        cg.add(var.set_send_interval(config[CONF_SEND_INTERVAL].total_milliseconds))

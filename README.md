@@ -1,10 +1,11 @@
 # Chinese-Diesel-Heater---ESPHome
 
-ESPHome external component that reads the data from the heater, its the first custom component I have made for esphome, so could probably be much better.
+ESPHome external component that reads data from the heater.  The component now
+also supports sending basic commands back to the heater.
 
 This connects directly to the blue wire (GPIO4) to read the data being transmitted from the controller and then the reply from the heater.
 
-I hope to add control.
+Serial control has now been implemented.
 
 [Documentation used, credit Ray Jones for his work with these heaters](https://gitlab.com/mrjones.id.au/bluetoothheater/-/blob/master/Documentation/V9%20-%20Hacking%20the%20Chinese%20Diesel%20Heater%20Communications%20Protocol.pdf?ref_type=heads)
 
@@ -147,7 +148,11 @@ switch:
 
 # Control Solution
 
-I have struggled to get working commands sent over serial, so I connected 3 transistors to the switches on the controller, 'Power', 'Up' and 'Down' through 1k resistors to the ESP's GPIO so I can turn the heater on and off and control the duty through ESPHome. The power switch needs to be on/'Pressed' for 3 seconds to turn the heater off.
+I originally struggled to get working commands sent over serial, so I connected 3
+transistors to the controller buttons for basic control.  With the protocol now
+decoded, the `diesel_heater` component exposes helper methods to send start and
+stop commands as well as update the desired temperature directly over the blue
+wire.
 
 ![image](https://github.com/timmchugh11/Chinese-Diesel-Heater---ESPHome/assets/51882579/dbc770fe-6271-419e-b8ee-10471d517837)
 ```
@@ -158,5 +163,32 @@ I have struggled to get working commands sent over serial, so I connected 3 tran
 5 - Up Button 5v
 6 - Button 0v
 8 - GND
+```
+
+# Controller-less Mode
+
+You can completely replace the original controller by providing a 24 byte sample
+frame. Add the `initial_frame` option to the `diesel_heater` component with your
+captured bytes. The component will transmit this frame every `send_interval`
+(150ms by default) and parse the heater's responses. The helper methods `start`,
+`stop` and `set_desired_temperature` update the frame and send it immediately.
+
+Example YAML:
+
+```yaml
+diesel_heater:
+  uart_id: heater_serial
+  initial_frame: [0x76, 0x16, 0x00, 0x14, 0x19, 0x1E, 0x37, 0x06,
+                  0x90, 0x11, 0x94, 0x78, 0x01, 0x32, 0x08, 0x23,
+                  0x05, 0x00, 0xEB, 0x47, 0x0D, 0xAC, 0x00, 0x00]
+  send_interval: 150ms
+  set_temperature: set_temperature
+  state: state_int
+  error: error_int
+  on_off: on_off
+  pump_frequency: pump_frequency
+  fan_speed: fan_speed
+  chamber_temperature: chamber_temperature
+  duty_cycle: duty_cycle
 ```
 

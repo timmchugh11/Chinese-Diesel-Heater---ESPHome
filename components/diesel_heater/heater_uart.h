@@ -3,6 +3,7 @@
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
 #include "esphome/components/sensor/sensor.h"
+#include <vector>
 
 namespace esphome {
 namespace heater_uart {
@@ -22,6 +23,11 @@ class HeaterUart : public PollingComponent, public uart::UARTDevice {
   void setup() override;
   void loop() override;
   void update() override;
+  void start();
+  void stop();
+  void set_desired_temperature(uint8_t temperature);
+  void set_initial_frame(const std::vector<uint8_t> &frame);
+  void set_send_interval(uint32_t interval_ms);
   void dump_config() override {}
 
  protected:
@@ -48,6 +54,14 @@ class HeaterUart : public PollingComponent, public uart::UARTDevice {
   bool first_byte_received_ = false;
   bool second_byte_received_ = false;
   uint8_t data_[48];
+  uint8_t tx_frame_[24];
+  bool tx_frame_valid_ = false;
+  bool periodic_send_ = false;
+  uint32_t send_interval_ms_ = 150;
+  uint32_t last_tx_time_ = 0;
+
+  uint16_t crc16_modbus_(const uint8_t *data, uint16_t length);
+  void send_frame_();
 };
 
 }  // namespace heater_uart
