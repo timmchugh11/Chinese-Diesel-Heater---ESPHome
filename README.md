@@ -6,6 +6,57 @@ This connects directly to the blue wire (GPIO4) to read the data being transmitt
 
 I hope to add control.
 
+## Experimental serial ON/OFF test
+
+The `serial-control-test` branch adds experimental ON and OFF commands over the
+existing blue-wire serial bus. Commands are queued until the next valid 48-byte
+heater exchange, delayed by 50 ms, and then sent once as a 24-byte packet.
+
+This test requires a genuine one-wire/open-drain half-duplex connection and an
+appropriate bus pull-up. Recent Arduino-ESP32 versions automatically select
+open-drain one-wire mode when RX and TX resolve to the same GPIO; do not assume
+the same behaviour for every ESP-IDF/ESPHome version. Do not connect a push-pull
+TX output that can electrically fight the heater controller. Confirm the actual
+pin mode for the selected framework before connecting it to the heater.
+
+```yaml
+uart:
+  id: heater_serial
+  rx_pin: 33
+  tx_pin: 33
+  baud_rate: 25000
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/timmchugh11/Chinese-Diesel-Heater---ESPHome
+      ref: serial-control-test
+    refresh: 1min
+
+diesel_heater:
+  id: diesel_heater_uart
+  uart_id: heater_serial
+  # Retain all existing sensor references shown below.
+
+button:
+  - platform: template
+    name: "Heater Serial ON Test"
+    on_press:
+      - lambda: |-
+          id(diesel_heater_uart).request_on();
+
+  - platform: template
+    name: "Heater Serial OFF Test"
+    on_press:
+      - lambda: |-
+          id(diesel_heater_uart).request_off();
+```
+
+Each button press queues one command; it does not transmit immediately. Keep
+the existing sensors in the `diesel_heater` configuration. Use debug logs and,
+ideally, a logic analyser to verify the 50 ms interval and check for collisions
+or local TX echo. This is an experimental test path, not a finished control API.
+
 [Documentation used, credit Ray Jones for his work with these heaters](https://gitlab.com/mrjones.id.au/bluetoothheater/-/blob/master/Documentation/V9%20-%20Hacking%20the%20Chinese%20Diesel%20Heater%20Communications%20Protocol.pdf?ref_type=heads)
 
 [Check out this readme from PabloVitasso for more detailed infomation about wiring](https://github.com/PabloVitasso/esphome-chinbasto/blob/main/README.md)

@@ -24,7 +24,14 @@ class HeaterUart : public PollingComponent, public uart::UARTDevice {
   void update() override;
   void dump_config() override {}
 
+  void request_on();
+  void request_off();
+
  protected:
+  enum class PendingCommand : uint8_t { NONE, ON, OFF };
+
+  void send_pending_command_();
+
   sensor::Sensor *set_temp_;
   sensor::Sensor *heater_state_int_;
   sensor::Sensor *heater_error_int_;
@@ -47,6 +54,7 @@ class HeaterUart : public PollingComponent, public uart::UARTDevice {
   bool rx_active_ = false;
   bool first_byte_received_ = false;
   bool second_byte_received_ = false;
+  PendingCommand pending_command_ = PendingCommand::NONE;
   uint8_t data_[48];
 };
 

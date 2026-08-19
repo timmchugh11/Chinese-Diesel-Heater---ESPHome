@@ -6,6 +6,14 @@ namespace heater_uart {
 
 static const char *const TAG = "heater_uart";
 
+static const uint8_t SERIAL_ON_COMMAND[24] = {
+    0x78, 0x16, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x01, 0x32, 0x08, 0x23, 0x05, 0x00, 0x01, 0x2C, 0x0D, 0xAC, 0x8D, 0x82};
+
+static const uint8_t SERIAL_OFF_COMMAND[24] = {
+    0x78, 0x16, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x01, 0x32, 0x08, 0x23, 0x05, 0x00, 0x01, 0x2C, 0x0D, 0xAC, 0x61, 0xD6};
+
 HeaterUart::HeaterUart(uart::UARTComponent *parent,
                        sensor::Sensor *set_temp,
                        sensor::Sensor *heater_state_int,
@@ -27,6 +35,38 @@ HeaterUart::HeaterUart(uart::UARTComponent *parent,
 
 void HeaterUart::setup() {
   ESP_LOGD(TAG, "Setup complete");
+}
+
+void HeaterUart::request_on() {
+  ESP_LOGD(TAG, "Serial ON requested");
+  pending_command_ = PendingCommand::ON;
+  ESP_LOGD(TAG, "Command queued waiting for next valid 48-byte exchange");
+}
+
+void HeaterUart::request_off() {
+  ESP_LOGD(TAG, "Serial OFF requested");
+  pending_command_ = PendingCommand::OFF;
+  ESP_LOGD(TAG, "Command queued waiting for next valid 48-byte exchange");
+}
+
+void HeaterUart::send_pending_command_() {
+  if (pending_command_ == PendingCommand::NONE)
+    return;
+
+  // Match the timing of the known working experimental implementation.
+  ESP_LOGD(TAG, "Waiting 50 ms before command transmission");
+  delay(50);
+
+  if (pending_command_ == PendingCommand::ON) {
+    ESP_LOGD(TAG, "Sending serial ON command");
+    write_array(SERIAL_ON_COMMAND, sizeof(SERIAL_ON_COMMAND));
+  } else {
+    ESP_LOGD(TAG, "Sending serial OFF command");
+    write_array(SERIAL_OFF_COMMAND, sizeof(SERIAL_OFF_COMMAND));
+  }
+  flush();
+  pending_command_ = PendingCommand::NONE;
+  ESP_LOGD(TAG, "24-byte command transmission complete");
 }
 
 void HeaterUart::loop() {
@@ -70,6 +110,7 @@ void HeaterUart::loop() {
   }
 
   if (data_valid) {
+    ESP_LOGD(TAG, "Valid 48-byte exchange complete");
     set_temp_val_ = data_[SET_TEMP_INDEX];
     heater_state_ = data_[HEATER_STATE_INDEX];
     heater_error_ = data_[HEATER_ERROR_INDEX];
@@ -80,7 +121,14 @@ void HeaterUart::loop() {
     duty_cycle_val_ = ((set_temp_val_ - 8) / 27.0f) * 100.0f;
 
     rx_active_ = false;
+    first_byte_received_ = false;
+    second_byte_received_ = false;
     count_ = 0;
+
+    // With one-wire UART the transmitted 0x78-prefixed packet may be echoed
+    // locally. It cannot match the parser's 0x76, 0x16 frame prefix, so it is
+    // safely ignored when loop() next drains RX.
+    send_pending_command_();
   }
 }
 

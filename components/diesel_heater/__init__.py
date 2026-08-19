@@ -5,6 +5,8 @@ from esphome.const import CONF_ID
 
 # Define C++ namespace and class
 heater_uart_ns = cg.esphome_ns.namespace("heater_uart")
+# The generated component ID can be referenced from template-button lambdas to
+# call the public request_on() and request_off() experimental controls.
 HeaterUart = heater_uart_ns.class_("HeaterUart", cg.Component, uart.UARTDevice)
 
 # Define config keys
