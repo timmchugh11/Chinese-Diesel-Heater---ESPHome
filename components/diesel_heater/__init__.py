@@ -3,7 +3,7 @@ import esphome.config_validation as cv
 from esphome.components import number, sensor, switch, text_sensor, uart
 from esphome.const import CONF_ID
 
-AUTO_LOAD = ["number", "text_sensor"]
+AUTO_LOAD = ["number", "text_sensor", "switch"]
 DEPENDENCIES = ["uart"]
 
 # Define C++ namespace and class
