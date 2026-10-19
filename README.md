@@ -333,5 +333,4 @@ logs.
 
 - [Ray Jones' Chinese diesel heater protocol documentation](https://gitlab.com/mrjones.id.au/bluetoothheater/-/blob/master/Documentation/V9%20-%20Hacking%20the%20Chinese%20Diesel%20Heater%20Communications%20Protocol.pdf?ref_type=heads)
 - [PabloVitasso's wiring information](https://github.com/PabloVitasso/esphome-chinbasto/blob/main/README.md)
-- Serial timing and command packets were based on wshelley's working Chinese
-  Diesel Heater Advanced Temperature Controller implementation.
+
