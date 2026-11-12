@@ -508,9 +508,9 @@ void HeaterUart::update() {
     duty_control_->publish_state(duty_stable_value_);
   if ((pump_freq_val_ * 0.1f > 1.2f && pump_freq_val_ * 0.1f < 5.5f) || pump_freq_val_ == 0)
     pump_freq_->publish_state(pump_freq_val_ * 0.1f);
-  if ((fan_speed_val_ >= 1000 && fan_speed_val_ <= 5500) || fan_speed_val_ == 0)
+  if ((fan_speed_val_ >= 1000 && fan_speed_val_ <= 8000) || fan_speed_val_ == 0)
     fan_speed_->publish_state(fan_speed_val_);
-  if (chamber_temp_val_ > 0 && chamber_temp_val_ < 230)
+  if (chamber_temp_val_ > 0 && chamber_temp_val_ < 400)
     chamber_temp_->publish_state(chamber_temp_val_);
 }
 
